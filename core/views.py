@@ -6,6 +6,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserRegistrationSerializer, UserProfileSerializer
 from django.contrib.auth import get_user_model
 from .permissions import CustomAccessPermission
+from rest_framework import viewsets
+from .models import Role, Resource, Action, PermissionRule, UserRole
+from .serializers import RoleSerializer, ResourceSerializer, ActionSerializer, PermissionRuleSerializer, UserRoleSerializer
 
 
 User = get_user_model()
@@ -78,3 +81,35 @@ class MockFinancialReportView(APIView):
 
     def post(self, request):
         return Response({"message": "Отчет успешно создан!"}, status=status.HTTP_201_CREATED)
+
+# --- API ДЛЯ АДМИНИСТРАТОРОВ (УПРАВЛЕНИЕ ДОСТУПОМ) ---
+
+class RoleViewSet(viewsets.ModelViewSet):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+    permission_classes = [CustomAccessPermission]
+    required_resource = 'access_control' # Системное имя ресурса для защиты этих API
+
+class ResourceViewSet(viewsets.ModelViewSet):
+    queryset = Resource.objects.all()
+    serializer_class = ResourceSerializer
+    permission_classes = [CustomAccessPermission]
+    required_resource = 'access_control'
+
+class ActionViewSet(viewsets.ModelViewSet):
+    queryset = Action.objects.all()
+    serializer_class = ActionSerializer
+    permission_classes = [CustomAccessPermission]
+    required_resource = 'access_control'
+
+class PermissionRuleViewSet(viewsets.ModelViewSet):
+    queryset = PermissionRule.objects.all()
+    serializer_class = PermissionRuleSerializer
+    permission_classes = [CustomAccessPermission]
+    required_resource = 'access_control'
+
+class UserRoleViewSet(viewsets.ModelViewSet):
+    queryset = UserRole.objects.all()
+    serializer_class = UserRoleSerializer
+    permission_classes = [CustomAccessPermission]
+    required_resource = 'access_control'
