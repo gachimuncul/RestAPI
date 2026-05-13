@@ -5,6 +5,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserRegistrationSerializer, UserProfileSerializer
 from django.contrib.auth import get_user_model
+from .permissions import CustomAccessPermission
+
 
 User = get_user_model()
 
@@ -60,3 +62,19 @@ class LogoutView(APIView):
             return Response({"detail": "Успешный выход из системы."}, status=status.HTTP_205_RESET_CONTENT)
         except Exception:
             return Response({"detail": "Неверный или отсутствующий токен."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MockFinancialReportView(APIView):
+    permission_classes = [CustomAccessPermission]
+    required_resource = 'financial_reports'
+
+    def get(self, request):
+        # Если код дошел сюда, значит разрешение получено возвращаем фейковые данные.
+        mock_data = [
+            {"id": 1, "month": "Январь", "revenue": 500000},
+            {"id": 2, "month": "Февраль", "revenue": 650000}
+        ]
+        return Response({"message": "Доступ разрешен!", "data": mock_data})
+
+    def post(self, request):
+        return Response({"message": "Отчет успешно создан!"}, status=status.HTTP_201_CREATED)
